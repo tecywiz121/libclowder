@@ -1,0 +1,4 @@
+add_executable(clowder_test main node_id_tests routing_table_tests address_tests)
+
+target_link_libraries(clowder_test clowder)
+add_test(clowder_test clowder_test)
