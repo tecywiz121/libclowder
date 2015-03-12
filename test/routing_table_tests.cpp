@@ -173,6 +173,9 @@ SCENARIO("a populated routing table is searched for a node_id")
     clowder::routing_table table(my_id);
     clowder::routing_table_pvt pvt(table);
 
+    std::vector<clowder::peer> peers;
+    peers.reserve(clowder::node_id::length);
+
     for (size_t ii = 0; ii < clowder::node_id::length; ii++) {
         for (size_t jj = 255; jj > 0; jj>>=1) {
             std::stringstream ss;
@@ -193,6 +196,7 @@ SCENARIO("a populated routing table is searched for a node_id")
 
             clowder::peer p(clowder::node_id(ss.str()), nullptr);
             table.update(p);
+            peers.push_back(p);
         }
     }
 
@@ -296,6 +300,15 @@ SCENARIO("a populated routing table is searched for a node_id")
                 CHECK(results[1].id().to_string() == closest.to_string());
                 CHECK(results[2].id().to_string() == close.to_string());
                 CHECK(results[3].id().to_string() == closer.to_string());
+            }
+        }
+
+        WHEN("more than all the nodes are searched for") {
+            std::vector<clowder::peer> results = table.closest(target, 257);
+
+            THEN("exactly 255 nodes should be returned") {
+                REQUIRE(results.size() == peers.size());
+                // TODO - SW: Check the ordering
             }
         }
     }
