@@ -15,9 +15,29 @@ public:
     }
 };
 
+class test_hash_table : public clowder::hash_table
+{
+using clowder::hash_table::hash_table;
+protected:
+    virtual std::unique_ptr<clowder::address> address_from(const uint8_t* data,
+                                                           size_t len) override
+    {
+        REQUIRE(len == 1);
+        REQUIRE(data[0] == 12);
+        return std::unique_ptr<clowder::address>(new hash_table_address());
+    }
+
+    virtual void output(const clowder::address&,
+                        const uint8_t*,
+                        size_t) override
+    {
+        // TODO - SW: Verify what is output
+    }
+};
+
 SCENARIO("create a hash table", "[hash_table]")
 {
     std::unique_ptr<hash_table_address> addr(new hash_table_address());
     std::string netid("ID");
-    clowder::hash_table table(std::move(addr), netid);
+    test_hash_table table(std::move(addr), netid);
 }

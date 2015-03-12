@@ -28,6 +28,15 @@ public:
 
     }
 
+    const node_id& id() const
+    {
+        return _id;
+    }
+
+    void available(const address&, const uint8_t*, size_t)
+    {
+        throw not_implemented("implement processing incoming data");
+    }
 };
 
 hash_table::hash_table(unique_ptr<address> contact, string network_id)
@@ -38,4 +47,16 @@ hash_table::hash_table(unique_ptr<address> contact, string network_id)
 
 hash_table::~hash_table() = default;
 
+const node_id& hash_table::id() const { return _pimpl->id(); }
+
+void hash_table::available(const address& from, const uint8_t* data, size_t len)
+{
+    _pimpl->available(from, data, len);
+}
+
+std::unique_ptr<address> hash_table::address_from(const address& addr)
+{
+    std::vector<uint8_t> bytes(addr.to_bytes());
+    return address_from(bytes.data(), bytes.size());
+}
 }

@@ -2,6 +2,7 @@
 #ifndef CLOWDER_HASH_TABLE_HPP
 #define CLOWDER_HASH_TABLE_HPP
 
+#include <clowder/node_id.hpp>
 #include <clowder/common.hpp>
 #include <clowder/address.hpp>
 
@@ -20,12 +21,21 @@ private:
 public:
     hash_table(std::unique_ptr<address> contact, std::string network_id);
     hash_table(const hash_table&) = delete;
-    hash_table(hash_table&&);
+    hash_table(hash_table&&) = default;
 
     hash_table& operator=(const hash_table&) = delete;
-    hash_table& operator=(hash_table&&);
+    hash_table& operator=(hash_table&&) = default;
 
-    ~hash_table();
+    const node_id& id() const;
+
+    virtual ~hash_table();
+
+    void available(const address& src, const uint8_t[], size_t);
+
+protected:
+    virtual std::unique_ptr<address> address_from(const uint8_t[], size_t) =0;
+    virtual std::unique_ptr<address> address_from(const address&);
+    virtual void output(const address& addr, const uint8_t[], size_t) =0;
 };
 
 }
