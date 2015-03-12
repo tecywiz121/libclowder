@@ -30,6 +30,8 @@ public:
     node_id();
     explicit node_id(const std::string&);
 
+    virtual ~node_id() = default;
+
     node_id(const node_id&) = default;
     node_id(node_id&&) = default;
 
@@ -52,7 +54,7 @@ public:
     std::string to_string() const;
 
     size_type leading_zeros() const;
-private:
+protected:
     array_type _array;
 };
 

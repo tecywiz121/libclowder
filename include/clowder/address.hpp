@@ -21,7 +21,7 @@ public:
     address& operator=(const address&) = default;
     address& operator=(address&&) = default;
 
-    virtual std::vector<char> to_bytes() const =0;
+    virtual std::vector<uint8_t> to_bytes() const =0;
 
     virtual bool operator==(const address&) const;
     virtual bool operator!=(const address&) const;
