@@ -1,5 +1,6 @@
 add_executable(clowder_test
                 main
+                bencode_tests
                 node_id_tests
                 routing_table_tests
                 address_tests
