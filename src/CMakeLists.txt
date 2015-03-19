@@ -1,4 +1,4 @@
-set(SRCS node_id.cpp address.cpp peer.cpp routing_table.cpp hash_table.cpp secure_id.cpp state.cpp)
+set(SRCS node_id.cpp address.cpp bencode.cpp peer.cpp routing_table.cpp hash_table.cpp secure_id.cpp state.cpp)
 add_library(clowder ${SRCS})
 
 find_package(Botan REQUIRED)
