@@ -23,13 +23,13 @@ void decoder::parse(istream& is)
 {
     size_t nesting = 0;
     char c;
+    bool parsing = true;
 
     if (!is) {
         return;
     }
 
-    do
-    {
+    do {
         c = is.peek();
         switch (c)
         {
@@ -71,9 +71,16 @@ void decoder::parse(istream& is)
                     throw std::runtime_error("extra end");
                 }
                 break;
+            default:
+                // Unrecognized character? Bail out.
+                parsing = false;
+                break;
         }
+    } while (parsing && nesting > 0 && is);
+
+    if (0 < nesting) {
+        throw std::runtime_error("unterminated list or dictionary");
     }
-    while (nesting > 0 && is);
 }
 
 void decoder::parse_string(istream& is)

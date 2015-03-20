@@ -273,4 +273,13 @@ SCENARIO("A decoder can parse some data")
             }
         }
     }
+
+    GIVEN("Garbage data that looks like a list") {
+        std::string data("laaaaa");
+        WHEN("the data is parsed") {
+            THEN("We should get an exception") {
+                REQUIRE_THROWS(dec.parse(data));
+            }
+        }
+    }
 }
