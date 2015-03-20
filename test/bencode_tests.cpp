@@ -65,37 +65,46 @@ protected:
     {
         n_events++;
         events.emplace_back(event::event_kind::integer, v);
-        std::cout << "Integer: " << v << std::endl;
     }
 
     virtual void byte_string(std::string v) override
     {
         n_events++;
         events.emplace_back(event::event_kind::byte_string, v);
-        std::cout << "String: " << v << std::endl;
     }
 
     virtual void begin_list() override
     {
         n_events++;
         events.emplace_back(event::event_kind::begin_list);
-        std::cout << "Begin: list" << std::endl;
     }
 
     virtual void begin_dictionary() override
     {
         n_events++;
         events.emplace_back(event::event_kind::begin_dictionary);
-        std::cout << "Begin: dictionary" << std::endl;
     }
 
     virtual void end() override
     {
         n_events++;
         events.emplace_back(event::event_kind::end);
-        std::cout << "End" << std::endl;
     }
 };
+
+SCENARIO("A decoder doesn't have to implement any parsing functions")
+{
+    clowder::bencode::decoder dec;
+
+    GIVEN("A complex structure to decode") {
+        std::string data("ld4:spami10eee");
+        WHEN("the data is parsed") {
+            THEN("nothing should happen") {
+                dec.parse(data);
+            }
+        }
+    }
+}
 
 SCENARIO("A decoder can parse some data")
 {
@@ -171,6 +180,96 @@ SCENARIO("A decoder can parse some data")
             dec.parse(data);
             THEN("One begin_dictionary, byte_string, integer, end should occur") {
                 REQUIRE(dec.events == expect);
+            }
+        }
+    }
+
+    GIVEN("Only the letter e") {
+        std::string data("e");
+        WHEN("the data is parsed") {
+            THEN("an exception should be thrown") {
+                REQUIRE_THROWS(dec.parse(data));
+            }
+        }
+    }
+
+    GIVEN("A malformed string") {
+        std::string data("0a:aoeu");
+        WHEN("the data is parsed") {
+            THEN("an exception should be thrown") {
+                REQUIRE_THROWS(dec.parse(data));
+            }
+        }
+    }
+
+    GIVEN("A zero length string in a list") {
+        std::string data("l0:e");
+        std::vector<event> expect{event(event::event_kind::begin_list),
+                                  event(event::event_kind::byte_string, ""),
+                                  event(event::event_kind::end)};
+        WHEN("the data is parsed") {
+            dec.parse(data);
+            THEN("We should get one string event inside a list") {
+                REQUIRE(dec.events == expect);
+            }
+        }
+    }
+
+    GIVEN("A zero length string") {
+        std::string data("0:");
+        std::vector<event> expect{event(event::event_kind::byte_string, "")};
+        WHEN("the data is parsed") {
+            dec.parse(data);
+            THEN("We should get one string event") {
+                REQUIRE(dec.events == expect);
+            }
+        }
+    }
+
+    GIVEN("A really big integer") {
+        std::string data("i18446744073709551615e");
+        std::vector<event> expect{event(event::event_kind::integer, 18446744073709551615UL)};
+        WHEN("the data is parsed") {
+            dec.parse(data);
+            THEN("We should get the same integer out") {
+                REQUIRE(dec.events == expect);
+            }
+        }
+    }
+
+    GIVEN("A string length too long") {
+        std::string data("28446744073709551615:boop");
+        WHEN("the data is parsed") {
+            THEN("We should get an exception") {
+                REQUIRE_THROWS(dec.parse(data));
+            }
+        }
+    }
+
+    GIVEN("An oversized integer") {
+        std::string data("i28446744073709551615e");
+        WHEN("the data is parsed") {
+            THEN("We should get an exception") {
+                REQUIRE_THROWS(dec.parse(data));
+            }
+        }
+    }
+
+    GIVEN("An unterminated integer") {
+        std::string data("i1");
+        WHEN("the data is parsed") {
+            THEN("We should get an exception") {
+                REQUIRE_THROWS(dec.parse(data));
+            }
+        }
+    }
+
+    GIVEN("Garbage data") {
+        std::string data("aaaaaaa");
+        WHEN("the data is parsed") {
+            dec.parse(data);
+            THEN("We should get no events") {
+                REQUIRE(dec.n_events == 0);
             }
         }
     }

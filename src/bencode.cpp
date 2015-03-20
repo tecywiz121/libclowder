@@ -24,7 +24,7 @@ void decoder::parse(istream& is)
     size_t nesting = 0;
     char c;
 
-    if (!is.good()) {
+    if (!is) {
         return;
     }
 
@@ -73,7 +73,7 @@ void decoder::parse(istream& is)
                 break;
         }
     }
-    while (nesting > 0 && is.good());
+    while (nesting > 0 && is);
 }
 
 void decoder::parse_string(istream& is)
@@ -81,21 +81,23 @@ void decoder::parse_string(istream& is)
     size_t length;
     is >> length;
 
-    if (is.bad()) {
+    if (!is) {
         throw std::runtime_error("could not parse string length");
     }
 
     char c;
     is >> c;
 
-    if (is.bad() || c != ':') {
+    if (!is || c != ':') {
         throw std::runtime_error("invalid string separator");
     }
 
-    is.width(length);
-
     std::string data;
-    is >> data;
+
+    if (0 < length) {
+        is.width(length);
+        is >> data;
+    }
 
     byte_string(data);
 }
@@ -105,14 +107,14 @@ void decoder::parse_integer(istream& is)
     char c;
     is >> c;
 
-    if (is.bad() || c != 'i') {
+    if (!is || c != 'i') {
         throw std::runtime_error("invalid integer");
     }
 
     uint64_t data;
     is >> data;
 
-    if (is.bad()) {
+    if (!is) {
         throw std::runtime_error("unable to parse integer");
     }
 
