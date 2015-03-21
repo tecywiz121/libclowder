@@ -6,6 +6,7 @@
 
 using std::string;
 using std::istream;
+using std::ostream;
 
 namespace clowder
 {
@@ -13,6 +14,9 @@ namespace clowder
 namespace bencode
 {
 
+//
+// Decoder
+//
 void decoder::parse(const string& str)
 {
     std::istringstream ss(str);
@@ -114,9 +118,8 @@ void decoder::parse_integer(istream& is)
     char c;
     is >> c;
 
-    if (!is || c != 'i') {
-        throw std::runtime_error("invalid integer");
-    }
+    // unless something is broken with the istream, we know c must be 'i'
+    // because we peeked in parse.
 
     uint64_t data;
     is >> data;
@@ -138,6 +141,97 @@ void decoder::byte_string(string) {}
 void decoder::begin_list() {}
 void decoder::begin_dictionary() {}
 void decoder::end() {}
+
+//
+// Encoder
+//
+encoder::encoder(ostream& os)
+    : _stream(os)
+{
+
+}
+
+void encoder::integer(uint64_t v)
+{
+    check_state();
+    _stream << "i" << v << "e";
+}
+
+void encoder::byte_string(string v)
+{
+    // Don't call check_state() here, byte_string is allowed to be a dict key.
+
+    if (!_state.empty()) {
+        state& current = _state.top();
+        if (current.expects_key) {
+            // Flip the expecting key state to allow all types as dict values.
+            current.expects_key = false;
+
+            // Guarantee the ordering of dictionary keys
+            if (current.collection == type::dictionary) {
+                if (current.lastkey > v) {
+                    throw std::runtime_error("dictionary keys must be in lexicographical order");
+                } else {
+                    current.lastkey = v;
+                }
+            }
+        } else {
+            current.expects_key = true;
+        }
+    }
+
+    _stream << v.size() << ":" << v;
+}
+
+void encoder::begin_list()
+{
+    check_state();
+    _state.emplace(type::list);
+
+    _stream << "l";
+}
+
+void encoder::begin_dictionary()
+{
+    check_state();
+    _state.emplace(type::dictionary, true);
+
+    _stream << "d";
+}
+
+void encoder::check_state()
+{
+    if (_state.empty()) {
+        return;
+    }
+
+    state& current = _state.top();
+
+    if (current.collection == type::dictionary) {
+        if (current.expects_key) {
+            throw std::runtime_error("only byte_string is allowed as dictionary key");
+        } else {
+            current.expects_key = true;
+        }
+    }
+}
+
+void encoder::end()
+{
+    if (_state.empty()) {
+        throw std::runtime_error("nothing to end");
+    }
+
+    state& current = _state.top();
+    if (current.collection == type::dictionary) {
+        if (!current.expects_key) {
+            throw std::runtime_error("dictionary missing value");
+        }
+    }
+
+    _state.pop();
+    _stream << "e";
+}
 
 }
 

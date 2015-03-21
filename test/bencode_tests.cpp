@@ -2,6 +2,7 @@
 #include "catch.hpp"
 
 #include <vector>
+#include <sstream>
 
 #include "../src/bencode.hpp"
 
@@ -279,6 +280,166 @@ SCENARIO("A decoder can parse some data")
         WHEN("the data is parsed") {
             THEN("We should get an exception") {
                 REQUIRE_THROWS(dec.parse(data));
+            }
+        }
+    }
+}
+
+SCENARIO("An encoder can encode data into a string")
+{
+    std::stringstream ss;
+    clowder::bencode::encoder enc(ss);
+
+    GIVEN("a zero length string") {
+        WHEN("the data is encoded") {
+            enc.byte_string("");
+            THEN("a zero length string is encoded") {
+                REQUIRE(ss.str() == "0:");
+            }
+        }
+    }
+
+    GIVEN("a string") {
+        WHEN("the data is encoded") {
+            enc.byte_string("hello world");
+            THEN("the given string is encoded") {
+                REQUIRE(ss.str() == "11:hello world");
+            }
+        }
+    }
+
+    GIVEN("one integer") {
+        WHEN("the data is encoded") {
+            enc.integer(10);
+            THEN("one integer is encoded") {
+                REQUIRE(ss.str() == "i10e");
+            }
+        }
+    }
+
+    GIVEN("an empty list") {
+        WHEN("the data is encoded") {
+            enc.begin_list();
+            enc.end();
+            THEN("an empty list should be encoded") {
+                REQUIRE(ss.str() == "le");
+            }
+        }
+    }
+
+    GIVEN("nothing") {
+        WHEN("calling end") {
+            THEN("an exception should be thrown") {
+                REQUIRE_THROWS(enc.end());
+            }
+        }
+    }
+
+    GIVEN("a dictionary") {
+        enc.begin_dictionary();
+        WHEN("the dictionary is ended") {
+            enc.end();
+            THEN("an empty dictionary should be encoded") {
+                REQUIRE(ss.str() == "de");
+            }
+        }
+
+        WHEN("an integer is added as a key") {
+            THEN("an exception should be thrown") {
+                REQUIRE_THROWS(enc.integer(0));
+            }
+        }
+
+        WHEN("a list is added as a key") {
+            THEN("an exception should be thrown") {
+                REQUIRE_THROWS(enc.begin_list());
+            }
+        }
+
+        WHEN("a dictionary is added as a key") {
+            THEN("an exception should be thrown") {
+                REQUIRE_THROWS(enc.begin_dictionary());
+            }
+        }
+
+        WHEN("a byte_string is added as a key") {
+            enc.byte_string("key");
+            WHEN("the dictionary is ended") {
+                THEN("an exception should be thrown") {
+                    REQUIRE_THROWS(enc.end());
+                }
+            }
+
+            WHEN("an integer is added as a value") {
+                enc.integer(10);
+                enc.end();
+                THEN("a dictionary should be encoded") {
+                    REQUIRE(ss.str() == "d3:keyi10ee");
+                }
+            }
+        }
+
+        WHEN("two byte_strings are added as keys in the wrong order") {
+            enc.byte_string("z");
+            enc.byte_string("z");
+            THEN("an exception should be thrown") {
+                REQUIRE_THROWS(enc.byte_string("a"));
+            }
+        }
+
+        WHEN("two byte_strings are added as keys in the correct order") {
+            enc.byte_string("a");
+            enc.byte_string("b");
+            enc.byte_string("c");
+            enc.byte_string("d");
+            enc.end();
+            THEN("A dictionary with two keys should be added") {
+                REQUIRE(ss.str() == "d1:a1:b1:c1:de");
+            }
+        }
+    }
+}
+
+SCENARIO("a message is encoded, then decoded")
+{
+    std::stringstream ss;
+    GIVEN("an encoder and a decoder") {
+        test_decoder dec;
+        clowder::bencode::encoder enc(ss);
+
+        std::vector<event> expects{event(event::event_kind::begin_dictionary),
+                                   event(event::event_kind::byte_string, "v1"),
+                                   event(event::event_kind::begin_list),
+                                   event(event::event_kind::integer, 87),
+                                   event(event::event_kind::byte_string, "spam"),
+                                   event(event::event_kind::begin_dictionary),
+                                   event(event::event_kind::byte_string, "v2"),
+                                   event(event::event_kind::integer, 44),
+                                   event(event::event_kind::end),
+                                   event(event::event_kind::end),
+                                   event(event::event_kind::end)};
+
+        WHEN("a complex message is encoded") {
+            enc.begin_dictionary();
+            enc.byte_string("v1");
+
+            enc.begin_list();
+            enc.integer(87);
+            enc.byte_string("spam");
+
+            enc.begin_dictionary();
+            enc.byte_string("v2");
+            enc.integer(44);
+            enc.end();
+
+            enc.end();
+
+            enc.end();
+
+            THEN("the same message is decoded") {
+                dec.parse(ss.str());
+
+                REQUIRE(dec.events == expects);
             }
         }
     }

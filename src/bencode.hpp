@@ -5,6 +5,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <cassert>
+#include <stack>
 
 namespace clowder
 {
@@ -30,6 +31,45 @@ protected:
     virtual void begin_list();
     virtual void begin_dictionary();
     virtual void end();
+};
+
+class encoder final
+{
+public:
+    encoder(const encoder&) = default;
+    encoder(encoder&&) = default;
+    ~encoder() = default;
+
+    explicit encoder(std::ostream&);
+
+    void integer(uint64_t);
+    void byte_string(std::string);
+
+    void begin_list();
+    void begin_dictionary();
+    void end();
+
+private:
+    enum class type
+    {
+        list,
+        dictionary,
+    };
+
+    struct state
+    {
+        type collection;
+        std::string lastkey;
+        bool expects_key;
+
+        state(type c, bool ek = false, std::string lk = std::string())
+            : collection(c), lastkey(lk), expects_key(ek) { }
+    };
+
+    std::stack<state> _state;
+    std::ostream& _stream;
+
+    void check_state();
 };
 
 }
