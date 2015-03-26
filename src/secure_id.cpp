@@ -21,7 +21,7 @@ namespace clowder
 {
 
 secure_id::secure_id(const address& addr)
-    : secure_id(addr.to_bytes())
+    : secure_id(addr.device())
 {
 
 }

@@ -6,12 +6,18 @@
 class sec_id_address : public clowder::address
 {
 public:
-    virtual std::vector<uint8_t> to_bytes() const override
+    virtual std::vector<uint8_t> device() const override
     {
         std::vector<uint8_t> value;
         value.emplace_back('C');
         value.emplace_back('B');
         value.emplace_back('A');
+        return value;
+    }
+
+    virtual std::vector<uint8_t> endpoint() const override
+    {
+        std::vector<uint8_t> value{'D'};
         return value;
     }
 };

@@ -7,10 +7,16 @@
 class hash_table_address : public clowder::address
 {
 public:
-    virtual std::vector<uint8_t> to_bytes() const override
+    virtual std::vector<uint8_t> device() const override
     {
         std::vector<uint8_t> value;
         value.emplace_back(12);
+        return value;
+    }
+
+    virtual std::vector<uint8_t> endpoint() const override
+    {
+        std::vector<uint8_t> value{55};
         return value;
     }
 };

@@ -21,8 +21,11 @@ public:
     address& operator=(const address&) = default;
     address& operator=(address&&) = default;
 
-    virtual std::vector<uint8_t> to_bytes() const =0;
+    std::vector<uint8_t> to_bytes() const;
+    virtual std::vector<uint8_t> device() const =0;     // Equivalent to IP address
+    virtual std::vector<uint8_t> endpoint() const =0;   // Equivalent to port
 
+    virtual bool operator<(const address&) const;
     virtual bool operator==(const address&) const;
     virtual bool operator!=(const address&) const;
 };

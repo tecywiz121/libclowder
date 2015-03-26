@@ -6,10 +6,17 @@
 class test_address : public clowder::address
 {
 public:
-    virtual std::vector<uint8_t> to_bytes() const override
+    virtual std::vector<uint8_t> device() const override
     {
         std::vector<uint8_t> value;
         value.emplace_back(12);
+        return value;
+    }
+
+    virtual std::vector<uint8_t> endpoint() const override
+    {
+        std::vector<uint8_t> value;
+        value.emplace_back(55);
         return value;
     }
 };
@@ -23,8 +30,8 @@ SCENARIO("addresses can be converted to bytes")
             std::vector<uint8_t> bytes(addr.to_bytes());
 
             THEN("there should be matching bytes in the vector") {
-                REQUIRE(bytes.size() == 1);
-                CHECK(bytes[0] == 12);
+                std::vector<uint8_t> result{12, 55};
+                CHECK(bytes == result);
             }
         }
 
