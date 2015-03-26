@@ -26,7 +26,6 @@ void decoder::parse(const string& str)
 void decoder::parse(istream& is)
 {
     size_t nesting = 0;
-    char c;
     bool parsing = true;
 
     if (!is) {
@@ -34,7 +33,7 @@ void decoder::parse(istream& is)
     }
 
     do {
-        c = is.peek();
+        char c = is.peek();
         switch (c)
         {
             case '0':

@@ -62,11 +62,10 @@ std::vector<peer> routing_table::closest(const node_id& target, size_t n) const
     peers.reserve(n);
 
     std::array<const bucket_type*, 2> buckets;
-    size_t count;
 
     // Stop iterating when we have enough peers, or when we're out of buckets
     while (peers.size() < n) {
-        count = 0;
+        size_t count = 0;
 
         if (zeros >= distance && distance > 0) {
             buckets[count++] = &_buckets[zeros - distance];

@@ -29,5 +29,13 @@ target_include_directories(clowder
                             PRIVATE
                                 ${BOTAN_INCLUDE_DIR})
 
+if(CPPCHECK)
+    find_package(cppcheck REQUIRED)
+    include(CppcheckTargets)
+    set(CPPCHECK_TEMPLATE_ARG ${CPPCHECK_TEMPLATE_ARG} --error-exitcode=2 --suppress=missingIncludeSystem "--suppress=*:${BOTAN_INCLUDE_DIR}/*" "--suppress=unusedFunction")
+    add_cppcheck(clowder STYLE POSSIBLE_ERROR FAIL_ON_WARNINGS)
+endif()
+
+
 target_link_libraries(clowder
                         ${BOTAN_LIBRARIES})

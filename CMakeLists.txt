@@ -14,6 +14,7 @@ endif()
 
 option(COVERAGE "enable code coverage flags" OFF)
 option(COVERALLS "add target to upload coverage to coveralls" OFF)
+option(CPPCHECK "enable scanning the source code with cppcheck" ON)
 
 if(COVERAGE OR COVERALLS)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
