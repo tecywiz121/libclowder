@@ -3,12 +3,12 @@
 #include "peer.hpp"
 #include "compat.hpp"
 
-using std::shared_ptr;
+using std::vector;
 
 namespace clowder
 {
 
-peer::peer(node_id id, shared_ptr<address> addr)
+peer::peer(node_id id, address addr)
     : _id(id), _addr(std::move(addr))
 {
 

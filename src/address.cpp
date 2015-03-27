@@ -1,35 +1,41 @@
 /* vim: et sw=4 sts=4 ts=4 : */
-
 #include <clowder/address.hpp>
+
+using std::vector;
 
 namespace clowder
 {
 
-address::address() = default;
-
-std::vector<uint8_t> address::to_bytes() const
+address::address(vector<uint8_t> device, vector<uint8_t> endpoint)
+    : _device(std::move(device)), _endpoint(std::move(endpoint))
 {
-    std::vector<uint8_t> ep(endpoint());
-    std::vector<uint8_t> bytes(device());
-    bytes.reserve(bytes.size() + ep.size());
-    bytes.insert(bytes.end(), ep.begin(), ep.end());
-    return bytes;
+
 }
 
-bool address::operator==(const address& other) const
+const vector<uint8_t>& address::device() const
 {
-    return device() == other.device() && endpoint() == other.endpoint();
+    return _device;
 }
 
-bool address::operator!=(const address& other) const
+const vector<uint8_t>& address::endpoint() const
 {
-    return device() != other.device() || endpoint() != other.endpoint();
+    return _endpoint;
 }
 
-bool address::operator<(const address& other) const
+bool address::operator<(const address& o) const
 {
-    return device() < other.device()
-           || (device() == other.device() && endpoint() < other.endpoint());
+    return _device < o._device
+           || (_device == o._device && _endpoint < o._endpoint);
+}
+
+bool address::operator==(const address& o) const
+{
+    return _device == o._device && _endpoint == o._endpoint;
+}
+
+bool address::operator!=(const address& o) const
+{
+    return _device != o._device || _endpoint != o._endpoint;
 }
 
 }

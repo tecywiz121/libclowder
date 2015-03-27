@@ -4,6 +4,9 @@
 #include "../src/routing_table.hpp"
 
 #include <iostream>
+#include <vector>
+
+using std::vector;
 
 namespace clowder
 {
@@ -24,23 +27,24 @@ public:
 
 SCENARIO("peers are added to routing tables", "[routing_table]")
 {
+    clowder::address addr(vector<uint8_t>{},{});
     clowder::node_id my_id("00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF");
 
     clowder::node_id p1_id("8000000000000000000000000000000000000000000000000000000000000000");
-    clowder::peer p1(p1_id, nullptr);
+    clowder::peer p1(p1_id, addr);
 
     clowder::node_id p2_id("4000000000000000000000000000000000000000000000000000000000000000");
-    clowder::peer p2(p2_id, nullptr);
+    clowder::peer p2(p2_id, addr);
 
     clowder::node_id p3_id("4800000000000000000000000000000000000000000000000000000000000000");
-    clowder::peer p3(p3_id, nullptr);
+    clowder::peer p3(p3_id, addr);
 
     GIVEN("an empty routing table") {
         clowder::routing_table table(my_id);
         clowder::routing_table_pvt pvt(table);
 
         WHEN("adding own node id") {
-            clowder::peer me(my_id, nullptr);
+            clowder::peer me(my_id, addr);
             table.update(me);
 
             THEN("no new peers should be in the table") {
@@ -169,6 +173,7 @@ SCENARIO("peers are added to routing tables", "[routing_table]")
 
 SCENARIO("a populated routing table is searched for a node_id")
 {
+    clowder::address addr(vector<uint8_t>{},{});
     clowder::node_id my_id("0000000000000000000000000000000000000000000000000000000000000000");
     clowder::routing_table table(my_id);
     clowder::routing_table_pvt pvt(table);
@@ -194,7 +199,7 @@ SCENARIO("a populated routing table is searched for a node_id")
                 ss << "FF";
             }
 
-            clowder::peer p(clowder::node_id(ss.str()), nullptr);
+            clowder::peer p(clowder::node_id(ss.str()), addr);
             table.update(p);
             peers.push_back(p);
         }

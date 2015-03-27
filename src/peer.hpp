@@ -6,6 +6,7 @@
 #include <clowder/address.hpp>
 
 #include <memory>
+#include <vector>
 
 namespace clowder
 {
@@ -14,10 +15,10 @@ class peer
 {
 private:
     node_id _id;
-    std::shared_ptr<address> _addr;
+    address _addr;
 
 public:
-    peer(node_id id, std::shared_ptr<address> addr);
+    peer(node_id id, address addr);
 
     peer(const peer&) = default;
     peer(peer&&) = default;
@@ -26,7 +27,7 @@ public:
     peer& operator=(const peer&) = default;
 
     const node_id& id() const { return _id; }
-    const address& addr() const { return *_addr; }
+    const std::vector<uint8_t>& addr();
 };
 
 }

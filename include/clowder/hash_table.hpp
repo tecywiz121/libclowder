@@ -8,18 +8,22 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace clowder
 {
 
+class channel;
+
 class CLOWDER_API hash_table
 {
+    friend class channel;
 private:
     class pvt;
     std::unique_ptr<pvt> _pimpl;
 
 public:
-    hash_table(std::unique_ptr<address> contact, std::string network_id);
+    hash_table(address contact, std::string network_id);
     hash_table(const hash_table&) = delete;
     hash_table(hash_table&&) = default;
 
@@ -30,12 +34,9 @@ public:
 
     virtual ~hash_table();
 
-    void available(const address& src, const uint8_t[], size_t);
+    channel& channel_for(const std::vector<uint8_t>& address);
 
 protected:
-    virtual std::unique_ptr<address> address_from(const uint8_t[], size_t) =0;
-    virtual std::unique_ptr<address> address_from(const address&);
-    virtual void output(const address& addr, const uint8_t[], size_t) =0;
 };
 
 }

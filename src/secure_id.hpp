@@ -21,16 +21,16 @@ class secure_id : public node_id, public uses_botan
 {
 public:
     secure_id();
-    secure_id(const address&);
 
     secure_id(const secure_id&) = default;
     secure_id(secure_id&&) = default;
+    secure_id(const std::vector<uint8_t>&);
+    secure_id(const address&);
 
     secure_id& operator=(const secure_id&) = default;
     secure_id& operator=(secure_id&&) = default;
 
 private:
-    secure_id(const std::vector<uint8_t>&);
     Botan::AutoSeeded_RNG _rng;
     std::unique_ptr<Botan::ECDSA_PrivateKey> _key;
     Botan::X509_Certificate _cert;
