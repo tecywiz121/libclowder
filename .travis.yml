@@ -8,7 +8,7 @@ before_script:
     - sudo apt-add-repository -y 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.5 main'
     - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
     - sudo apt-get update -y -qq
-    - sudo apt-get install -y -qq cmake cmake-data gcc-4.8 g++-4.8 clang-3.5 libllvm3.5 lcov curl libbotan1.10-dev libbotan-1.10-0 cppcheck libstdc++-4.8-dev
+    - sudo apt-get install -y -qq cmake cmake-data gcc-4.8 g++-4.8 clang-3.5 libllvm3.5 lcov curl cppcheck libstdc++-4.8-dev
     - sudo apt-get purge -y -qq gcc-4.4 g++-4.4 clang clang-3.4 libllvm3.4 llvm-3.4
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 100
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 100
@@ -17,4 +17,13 @@ before_script:
     - export LD_LIBRARY_PATH=/usr/lib/llvm-3.5/lib/
     - export PATH=/usr/lib/llvm-3.5/bin:$PATH
     - export CTEST_OUTPUT_ON_FAILURE=TRUE
+    - mkdir botan-build
+    - cd botan-build
+    - wget http://botan.randombit.net/releases/Botan-1.11.15.tgz
+    - tar xzvf Botan-1.11.15.tgz --strip-components=1
+    - ls -alh
+    - python configure.py
+    - make
+    - sudo make install
+    - cd ..
 script: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug -DCOVERALLS=ON && make && make test && make coveralls

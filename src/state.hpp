@@ -7,15 +7,23 @@
 #include <atomic>
 #include <iostream>
 
+#include <botan/build.h>
+#include <botan/version.h>
 #include <botan/init.h>
-#include <botan/libstate.h>
+#if BOTAN_VERSION_CODE < BOTAN_VERSION_CODE_FOR(1, 11, 14)
+#   include <botan/libstate.h>
+#endif
 
 namespace clowder
 {
 
 class uses_botan
 {
+#if BOTAN_VERSION_CODE < BOTAN_VERSION_CODE_FOR(1, 11, 0)
+#   error "libclowder requires at least version 1.11.0 of botan"
+#elif BOTAN_VERSION_CODE < BOTAN_VERSION_CODE_FOR(1, 11, 14)
 private:
+    static std::atomic_bool _no_conflict;
     static std::atomic_size_t _count;
 
 protected:
@@ -23,8 +31,12 @@ protected:
     {
         size_t old = _count++;
         bool exists = Botan::Global_State_Management::global_state_exists();
-        if (!exists && 0 == old) {
-            Botan::LibraryInitializer::initialize();
+        if (0 == old) {
+            if (exists) {
+                _no_conflict = true;
+            } else {
+                Botan::LibraryInitializer::initialize();
+            }
         }
     }
 
@@ -33,9 +45,14 @@ public:
     {
         size_t now = --_count;
         if (0 == now) {
-            Botan::LibraryInitializer::deinitialize();
+            if (_no_conflict) {
+                _no_conflict = false;
+            } else {
+                Botan::LibraryInitializer::deinitialize();
+            }
         }
     }
+#endif
 };
 
 }

@@ -25,8 +25,9 @@ endif()
 
 target_include_directories(clowder
                             PUBLIC
-                                ${CMAKE_SOURCE_DIR}/include
-                            PRIVATE
+                                ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(clowder
+                            SYSTEM PRIVATE
                                 ${BOTAN_INCLUDE_DIR})
 
 if(CPPCHECK)
