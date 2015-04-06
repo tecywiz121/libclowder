@@ -8,6 +8,8 @@
 #include <memory>
 #include <vector>
 
+class test_channel;
+
 namespace clowder
 {
 
@@ -15,6 +17,7 @@ class hash_table;
 
 class CLOWDER_API channel
 {
+    friend class ::test_channel;
 private:
     class pvt;
     std::unique_ptr<pvt> _pimpl;
@@ -22,14 +25,12 @@ private:
 public:
     virtual ~channel();
 
-    void incoming(const std::vector<uint8_t>& data);
     void incoming(const uint8_t* data, size_t length);
 
     const address& addr() const;
 
 protected:
     channel(hash_table&, address);
-    virtual void outgoing(const std::vector<uint8_t>& data);
     virtual void outgoing(const uint8_t* data, size_t length) =0;
 };
 

@@ -17,7 +17,8 @@ hash_table::pvt::pvt(address contact, string network_id)
     : _contact(std::move(contact)),
       _network_id(std::move(network_id)),
       _id(_contact),
-      _routes(_id)
+      _routes(_id),
+      _session_manager(_rng)
 {
 
 }

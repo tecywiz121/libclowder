@@ -16,6 +16,7 @@ using Botan::X509_Certificate;
 using Botan::X509_Cert_Options;
 using std::unique_ptr;
 using std::vector;
+using std::string;
 
 namespace clowder
 {
@@ -34,7 +35,8 @@ secure_id::secure_id()
 
 secure_id::secure_id(const vector<uint8_t>& addr)
     : _key(generate_key()),
-      _cert(generate_x509_certificate(*_key))
+      _cert(generate_x509_certificate(*_key)),
+      _credentials_manager(*this)
 {
     Botan::CRC32 hash;
     hash.update(addr.data(), addr.size());
@@ -72,6 +74,32 @@ std::string secure_id::fingerprint(const X509_Certificate& cert)
     Botan::SHA_224 hash;
     hash.update(cert.BER_encode());
     return Botan::hex_encode(hash.final());
+}
+
+secure_id_credentials_manager::secure_id_credentials_manager(secure_id& id)
+    : _id(id)
+{
+
+}
+
+vector<X509_Certificate> secure_id_credentials_manager::cert_chain(
+        const vector<string>&,
+        const string&,
+        const string&)
+{
+    return {_id._cert};
+}
+
+Private_Key* secure_id_credentials_manager::private_key_for(
+        const X509_Certificate& cert,
+        const string&,
+        const string&)
+{
+    if (cert != _id._cert) {
+        return nullptr;
+    }
+
+    return _id._key.get();
 }
 
 }
