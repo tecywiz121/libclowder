@@ -100,4 +100,14 @@ SCENARIO("a scheduler can have events added, cancelled, and executed")
             REQUIRE(wait <= std::chrono::milliseconds(102));
         }
     }
+
+    WHEN("An event is added, then cancelled") {
+        sched.execute_in(scheduler::duration::zero(),
+                         task_func,
+                         0)->cancel();
+        THEN("The call should never be executed") {
+            REQUIRE(sched.periodic() == scheduler::duration::max());
+            REQUIRE(count == 0);
+        }
+    }
 }
