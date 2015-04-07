@@ -1,6 +1,8 @@
 /* vim: et sw=4 sts=4 ts=4 : */
 #include "catch.hpp"
 
+#include "hash_table_tests.hpp"
+
 #include "../src/channel_pvt.hpp"
 
 #include <clowder/hash_table.hpp>
@@ -13,7 +15,7 @@ using std::vector;
 class test_channel : public clowder::channel
 {
 public:
-    test_channel(clowder::hash_table& t, clowder::address a)
+    test_channel(test_hash_table& t, clowder::address a)
         : channel(t, a)
     {
 
@@ -28,7 +30,7 @@ protected:
 SCENARIO("channels each have an address")
 {
     clowder::address addr(vector<uint8_t>{},{});
-    clowder::hash_table table(addr, "MYID");
+    test_hash_table table(addr, "MYID");
 
     WHEN("a channel is created") {
         test_channel tc(table, clowder::address{vector<uint8_t>{22, 33}, {44}});
@@ -42,7 +44,7 @@ SCENARIO("channels each have an address")
 SCENARIO("data can be delivered to/received by a channel")
 {
     clowder::address addr({},{});
-    clowder::hash_table table(addr, "MYID");
+    test_hash_table table(addr, "MYID");
 
     test_channel tc(table, clowder::address{{},{}});
 

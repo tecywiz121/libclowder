@@ -13,8 +13,9 @@ using std::vector;
 namespace clowder
 {
 
-hash_table::pvt::pvt(address contact, string network_id)
-    : _contact(std::move(contact)),
+hash_table::pvt::pvt(hash_table& parent, address contact, string network_id)
+    : _parent(parent),
+      _contact(std::move(contact)),
       _network_id(std::move(network_id)),
       _id(_contact),
       _routes(_id),
@@ -28,18 +29,20 @@ const node_id& hash_table::pvt::id() const
     return _id;
 }
 
-void hash_table::pvt::add_channel(address addr, channel& c)
+channel& hash_table::pvt::get_channel(const address& addr)
 {
-    _channels.emplace(addr, std::ref(c));
-}
-
-void hash_table::pvt::remove_channel(const channel& c)
-{
-    _channels.erase(c.addr());
+    try {
+        return *_channels.at(addr);
+    } catch (std::out_of_range&) {
+        auto result =
+                _channels.emplace(std::make_pair(addr,
+                                                 _parent.create_channel(addr)));
+        return *result.first->second;
+    }
 }
 
 hash_table::hash_table(address contact, string network_id)
-    : _pimpl(make_unique<pvt>(std::move(contact), std::move(network_id)))
+    : _pimpl(make_unique<pvt>(*this, std::move(contact), std::move(network_id)))
 {
 
 }
@@ -47,5 +50,10 @@ hash_table::hash_table(address contact, string network_id)
 hash_table::~hash_table() = default;
 
 const node_id& hash_table::id() const { return _pimpl->id(); }
+
+channel& hash_table::get_channel(const address& addr)
+{
+    return _pimpl->get_channel(addr);
+}
 
 }

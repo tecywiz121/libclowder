@@ -85,13 +85,11 @@ void channel::pvt::connect(bool server)
 channel::pvt::pvt(channel& parent, hash_table::pvt& table, address addr)
     : _parent(parent), _table(table), _addr(std::move(addr))
 {
-    // this pvt instance hasn't been created yet, so can't use channel.addr()
-    _table.add_channel(_addr, _parent);
 }
 
 channel::pvt::~pvt()
 {
-    _table.remove_channel(_parent);
+
 }
 
 bool channel::pvt::connected()
