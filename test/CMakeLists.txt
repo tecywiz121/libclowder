@@ -6,7 +6,8 @@ add_executable(clowder_test
                 node_id_tests
                 routing_table_tests
                 secure_id_tests
-                hash_table_tests)
+                hash_table_tests
+                scheduler_tests)
 
 find_package(Botan REQUIRED)
 
