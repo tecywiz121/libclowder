@@ -68,4 +68,20 @@ scheduler::duration scheduler::periodic()
     return retval;
 }
 
+scheduler::duration scheduler::remaining() const
+{
+    if (_tasks.empty()) {
+        return duration::max();
+    }
+
+    time_point now = std::chrono::steady_clock::now();
+    const task& current = _tasks.top();
+
+    if (now >= current.start()) {
+        return duration::zero();
+    } else {
+        return current.start() - now;
+    }
+}
+
 }

@@ -45,6 +45,7 @@ public:
                                             rep rand_div = 20);
 
     duration periodic();
+    duration remaining() const;
 private:
     class task
     {
