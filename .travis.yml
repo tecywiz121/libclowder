@@ -19,8 +19,8 @@ before_script:
     - export CTEST_OUTPUT_ON_FAILURE=TRUE
     - mkdir botan-build
     - cd botan-build
-    - wget http://botan.randombit.net/releases/Botan-1.11.15.tgz
-    - tar xzvf Botan-1.11.15.tgz --strip-components=1
+    - wget http://botan.randombit.net/releases/Botan-1.11.17.tgz
+    - tar xzvf Botan-1.11.17.tgz --strip-components=1
     - ls -alh
     - python configure.py
     - make

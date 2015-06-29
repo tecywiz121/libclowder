@@ -64,7 +64,7 @@ void channel::pvt::connect(bool server)
                                                              _table.id().credentials_manager(),
                                                              _table.policy(),
                                                              _rng,
-                                                             std::vector<std::string>(),
+                                                             Botan::TLS::Server::next_protocol_fn(),
                                                              true));
     } else {
         _client_credentials_manager = make_unique<client_credentials_manager>();
