@@ -111,3 +111,26 @@ SCENARIO("a scheduler can have events added, cancelled, and executed")
         }
     }
 }
+
+SCENARIO("An event is added far in the future") {
+    scheduler sched;
+
+    size_t count = 0;
+    std::function<void()> task_func = [&count] () { count++; };
+
+    size_t count2 = 0;
+    std::function<void()> task_func2 = [&count2] () { count2++; };
+
+    sched.execute_in(std::chrono::hours(87660), // ~10 years
+                     task_func,
+                     0);
+
+    WHEN("The remaining time is checked") {
+        scheduler::duration remaining = sched.remaining();
+
+        THEN("There should be about the correct amount of time remaining") {
+            REQUIRE(remaining >= std::chrono::hours(87659));
+            REQUIRE(remaining < std::chrono::hours(87660));
+        }
+    }
+}
