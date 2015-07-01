@@ -2,10 +2,8 @@ add_executable(clowder_test
                 main
                 address_tests
                 bencode_tests
-                channel_tests
                 node_id_tests
                 routing_table_tests
-                secure_id_tests
                 hash_table_tests
                 scheduler_tests)
 

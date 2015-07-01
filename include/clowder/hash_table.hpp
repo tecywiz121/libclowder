@@ -13,30 +13,23 @@
 namespace clowder
 {
 
-class channel;
-
 class CLOWDER_API hash_table
 {
-    friend class channel;
 private:
     class pvt;
     std::unique_ptr<pvt> _pimpl;
 
 public:
-    hash_table(address contact, std::string network_id);
+    hash_table(address contact, node_id id, std::string network_id);
     hash_table(const hash_table&) = delete;
     hash_table(hash_table&&) = default;
 
     hash_table& operator=(const hash_table&) = delete;
     hash_table& operator=(hash_table&&) = default;
 
-    virtual ~hash_table();
+    ~hash_table();
 
     const node_id& id() const;
-    channel& get_channel(const address&);
-
-protected:
-    virtual std::unique_ptr<channel> create_channel(address) const =0;
 };
 
 }

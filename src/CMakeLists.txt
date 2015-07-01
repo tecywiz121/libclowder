@@ -1,11 +1,9 @@
 set(SRCS node_id.cpp
          address.cpp
          bencode.cpp
-         channel.cpp
          peer.cpp
          routing_table.cpp
          hash_table.cpp
-         secure_id.cpp
          state.cpp
          scheduler.cpp)
 
