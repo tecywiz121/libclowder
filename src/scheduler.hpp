@@ -2,8 +2,7 @@
 #ifndef CLOWDER_SCHEDULER_HPP
 #define CLOWDER_SCHEDULER_HPP
 
-#include "state.hpp"
-
+#include <atomic>
 #include <memory>
 #include <chrono>
 #include <functional>

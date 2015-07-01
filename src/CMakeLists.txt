@@ -4,12 +4,9 @@ set(SRCS node_id.cpp
          peer.cpp
          routing_table.cpp
          hash_table.cpp
-         state.cpp
          scheduler.cpp)
 
 add_library(clowder ${SRCS})
-
-find_package(Botan REQUIRED)
 
 if(COVERAGE OR COVERALLS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
@@ -34,17 +31,10 @@ endif()
 target_include_directories(clowder
                             PUBLIC
                                 ${CMAKE_SOURCE_DIR}/include)
-target_include_directories(clowder
-                            SYSTEM PRIVATE
-                                ${BOTAN_INCLUDE_DIR})
 
 if(CPPCHECK)
     find_package(cppcheck REQUIRED)
     include(CppcheckTargets)
-    set(CPPCHECK_TEMPLATE_ARG ${CPPCHECK_TEMPLATE_ARG} --error-exitcode=2 --suppress=missingIncludeSystem "--suppress=*:${BOTAN_INCLUDE_DIR}/*" "--suppress=unusedFunction")
+    set(CPPCHECK_TEMPLATE_ARG ${CPPCHECK_TEMPLATE_ARG} --error-exitcode=2 --suppress=missingIncludeSystem "--suppress=unusedFunction")
     add_cppcheck(clowder STYLE POSSIBLE_ERROR FAIL_ON_WARNINGS)
 endif()
-
-
-target_link_libraries(clowder
-                        ${BOTAN_LIBRARIES})

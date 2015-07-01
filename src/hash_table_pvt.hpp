@@ -5,10 +5,6 @@
 #include <clowder/hash_table.hpp>
 #include <clowder/address.hpp>
 #include "routing_table.hpp"
-#include "state.hpp"
-
-#include <botan/tls_session_manager.h>
-#include <botan/tls_policy.h>
 
 #include <string>
 #include <functional>
@@ -17,7 +13,7 @@
 namespace clowder
 {
 
-class hash_table::pvt : public uses_botan
+class hash_table::pvt
 {
 private:
     address _contact;
